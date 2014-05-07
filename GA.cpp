@@ -119,7 +119,7 @@ int GA::Select(){ //point rulletwheel
       }
     }
   }else{
-    cout << "COMPLETLY CONVERGED!!" << endl;
+    //cout << "COMPLETLY CONVERGED!!" << endl;
     return rand() % population_number;
   }
   cout << "SELECTION ERROR" << endl;
@@ -132,6 +132,11 @@ void GA::Replace(){
       offspring[preselect_index[i]] = offspring[best_offspring_index];
     }
   }
+  preselect_index = NULL;
+  delete preselect_index;
+
+  parent = NULL;
+  delete parent;
   parent = offspring;
 }
 
@@ -180,6 +185,9 @@ void GA::CyclicCrossover(int offspring_index, int parent1_index, int parent2_ind
 }
 
 void GA::ConstructRulletwheel(){
+  rullet = NULL;
+  delete rullet;
+
   rullet = new float[population_number + 1];
   rullet[0] = 0;
   for(int i=0;i<population_number;i++){
@@ -263,6 +271,8 @@ void GA::Reset(){
       swap(gene[r], gene[gene_number-j]);
     }
   }
+  offspring = NULL;
+  delete offspring;
   offspring = parent;
 }
 

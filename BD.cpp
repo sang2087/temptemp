@@ -8,9 +8,9 @@ using namespace std;
 
 void BD::set_value(int input_n, float input_p){
   n_multiplier = 1;
-  if(n > 100){
-    n_multiplier = 1.0 * input_n / 100;
-    input_n = 100;
+  if(n > 50){
+    n_multiplier = 1.0 * input_n / 50;
+    input_n = 50;
   }
   n = input_n;
   p = input_p;
