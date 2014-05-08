@@ -28,14 +28,14 @@ void GA::Initialize(){
 
 GA::GA(){
   float mm = 0.50;
-  for(int k=0;k<5;k++){
+  for(int k=0;k<2;k++){
   //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int worst_delete, int opt_number)
     if(k%10 == 0){
       mm=mm+0.05;
     }
     //SetValue("grading1/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
     //SetValue("grading101/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    SetValue("cycle.in.200", 50, 10, 0.003, 10, 1, 0.8);
+    SetValue("cycle.in.100", 50, 10, 0.003, 10, 1, 0.8);
     //SetValue("cycle.in.318", 100, 10, 0.003, 10, 10, 0.6);
     //SetValue("cycle.in.318", 50, 5, 0.0025, 5, 10, 0.6);
     //SetValue("cycle.in.50", 30, 5, 0.0025, 5, 10);
@@ -337,7 +337,6 @@ void GA::Analysis(){
 
   best_offspring = offspring[0];
   best_offspring_index = 0;
-  float sum = 0;
 
   for(int i=0;i<population_number;i++){
     offspring[i].fitness = CalculateFitness(offspring[i].gene); //Calculate Fitness
@@ -360,7 +359,7 @@ void GA::Analysis(){
     }
 
     if(TWO_OPT && start_optimization && i > opt_number){
-      if(offspring[i].fitness <= offspring[opt_index[worst_delete_number-1]].fitness){
+      if(offspring[i].fitness <= offspring[opt_index[opt_number-1]].fitness){
         int k = opt_number;
         while(k >=1 && offspring[i].fitness <= offspring[opt_index[k-1]].fitness){
           k--;
@@ -372,8 +371,8 @@ void GA::Analysis(){
         opt_index[k] = i;
       }
     }
-    sum+=offspring[i].fitness;
   }
+
   // cout << best_offspring.fitness<<" " << sum/population_number;
   // if(start_optimization)
   //   cout << "!!!!!!" << endl;
@@ -405,8 +404,6 @@ void GA::Reset(){
       swap(gene[r], gene[gene_number-j]);
     }
   }
-  offspring = NULL;
-  delete[] offspring;
   offspring = parent;
   start_optimization = false;
 }
@@ -487,7 +484,6 @@ void GA::Optimization(){
           best_offspring.gene = candidate_gene;
           best_offspring.fitness = candidate_fitness;
         }
-        candidate_gene= NULL;
         delete[] candidate_gene;
       }
     }
@@ -583,6 +579,7 @@ void GA::MultipointCrossover(int offspring_index,int parent1_index, int parent2_
   }
   offspring_gene = repair(offspring_gene);
   offspring[offspring_index].gene = offspring_gene;
+  delete[] offspring_gene;
 }
 
 Gene* GA::repair(Gene* damaged_gene){
