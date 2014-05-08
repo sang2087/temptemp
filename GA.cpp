@@ -1,5 +1,5 @@
 #define MAX_GENERATION 500000
-#define ELITISM false
+#define ELITISM true
 #define PRESELECT true
 #define TWO_OPT false
 
@@ -8,6 +8,7 @@
 void GA::Initialize(){
   //random init
   srand(time(NULL));
+
 
   //set values
   parent = new Chromosome[population_number];
@@ -19,11 +20,14 @@ void GA::Initialize(){
   Analysis();
 }
 
-
 GA::GA(){
-  for(int k=0;k<10;k++){
-  //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int preselect)
-    SetValue("cycle.in.51", 100, 5, 0.01, 10);
+  int mm = 1;
+  for(int k=0;k<50;k++){
+  //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int preselect, int opt_number)
+    if(k%10 == 0){
+      mm=mm+1;
+    }
+    SetValue("grading1/cycle.in.5", 100, mm, 0.03, 5, 10);
 
     Initialize();
     time_t start_t = time(0);
@@ -36,9 +40,14 @@ GA::GA(){
   //    cout << "Mutation" << endl;
       Mutate();
   //    cout << "Analysis" << endl;
-  //
+      if(end_t - start_t > limit_time * 0.10){
+        start_optimization = true;
+      }
       Analysis(); //analyze several feature. ex)best, worst, etc.
-      if(TWO_OPT){
+      if(TWO_OPT && start_optimization){
+        //어느정도 수렴이 되면 최적화를 시킬 것!
+        cout << "!!!" << endl;
+        start_optimization = true;
         Optimization();
         Analysis();
         //cout << "\n" << endl;
@@ -212,6 +221,24 @@ void GA::Analysis(){
       }
     }
   }
+  if(TWO_OPT && start_optimization){
+    opt_index = new int[opt_number];
+    for(int i=0;i<opt_number;i++){
+      opt_index[i] = i;
+    }
+    for(int i=0;i<opt_number;i++){
+      for(int j=0;j<i;j++){
+        if(offspring[opt_index[i]].fitness < offspring[opt_index[j]].fitness){
+          swap(opt_index[i], opt_index[j]);
+        }
+      }
+    }
+    for(int i=0;i<opt_number;i++){
+      cout << offspring[opt_index[i]].fitness << " ";
+    }
+    cout << endl;
+  }
+
   offspring[0].fitness = CalculateFitness(offspring[0].gene); //Calculate Fitness
 
   best_offspring = offspring[0];
@@ -243,17 +270,29 @@ void GA::Analysis(){
         preselect_index[k] = i;
       }
     }
+    if(TWO_OPT && start_optimization){
+      if(offspring[i].fitness <= offspring[opt_index[preselect_number-1]].fitness){
+        int k = opt_number;
+        while(k >=1 && offspring[i].fitness <= offspring[opt_index[k-1]].fitness){
+          k--;
+        }
+
+        for(int j = opt_number - 1; j > k;j--){
+          opt_index[j] = opt_index[j-1];
+        }
+        opt_index[k] = i;
+      }
+    }
+
  }
   if(best_offspring.fitness < total_best_offspring.fitness){
-   // cout << "BEST  " << best_offspring.fitness << endl;
-   // cout << "WORST " << worst_offspring.fitness << endl;
+    //cout << "BEST  " << best_offspring.fitness << endl;
+    //cout << "WORST " << worst_offspring.fitness << endl;
     total_best_offspring = best_offspring;
   }
   best_parent = best_offspring;
   worst_parent = worst_offspring;
 }
-
-
 
 void GA::Reset(){
   int gene[gene_number];
@@ -274,6 +313,7 @@ void GA::Reset(){
   offspring = NULL;
   delete offspring;
   offspring = parent;
+  start_optimization = false;
 }
 
 float GA::CalculateFitness(Gene* gene){
@@ -290,12 +330,13 @@ float GA::CalculateFitness(Gene* gene){
   return fitness;
 }
 
-void GA::SetValue(string filename, int p, int r, float m, int pre){
+void GA::SetValue(string filename, int p, int r, float m, int pre, int o){
   GetInput(filename);
   population_number = p;
   rullet_constant = r;
   mutation_ratio = m;
   preselect_number = pre;
+  opt_number = o;
   cout << "population_number : " << population_number << endl;
   cout << "rullet_constant : " << rullet_constant << endl;
   cout << "mutation_ratio : " << mutation_ratio << endl;
@@ -322,23 +363,30 @@ void GA::GetInput(string filename){
 
 
 void GA::Optimization(){
-  for(int offspring_index = 0;offspring_index<population_number;offspring_index++){
+  for(int opt_iterator = 0;opt_iterator<opt_number;opt_iterator++){
+    int offspring_index = opt_index[opt_iterator];
+    //int offspring_index = best_offspring_index;
     Chromosome best_offspring = ChromosomeClone(offspring[offspring_index]);
     for(int i=1;i<gene_number;i++){
       for(int j=i+2;j<gene_number;j++){
-        Chromosome candidate = ChromosomeClone(offspring[offspring_index]);
-
-        for(int k=0;k<(i+j)/2-i;k++){
-          // Gene temp = candidate.gene[i+k];
-          // candidate.gene[i+k] = candidate.gene[j-k];
-          // candidate.gene[j-k] = candidate.gene[i+k];
-
-          swap(candidate.gene[i+k], candidate.gene[j-k]);
+        Gene* candidate_gene = new Gene[gene_number];
+        int iterator = 0;
+        while(iterator < gene_number){
+          if(iterator < i){
+            candidate_gene[iterator] = offspring[offspring_index].gene[iterator];
+          }else if(iterator < j){
+            int index = i + j - iterator -1;
+            candidate_gene[iterator] = offspring[offspring_index].gene[index];
+          }else{
+            candidate_gene[iterator] = offspring[offspring_index].gene[iterator];
+          }
+          iterator++;
         }
 
-        candidate.fitness = CalculateFitness(candidate.gene);
-        if(candidate.fitness < best_offspring.fitness){
-          best_offspring = candidate;
+        float candidate_fitness = CalculateFitness(candidate_gene);
+        if(candidate_fitness < best_offspring.fitness){
+          best_offspring.gene = candidate_gene;
+          best_offspring.fitness = candidate_fitness;
         }
       }
     }

@@ -34,7 +34,7 @@ class GA {
 
     void GetInput(string filename);
     int Select();
-    void SetValue(string filename, int p, int r, float m, int pre);
+    void SetValue(string filename, int p, int r, float m, int pre, int o);
     void Reset();
 
     void Inversion(int parent_index);
@@ -79,6 +79,9 @@ class GA {
 
     int* preselect_index;
     int preselect_number;
+    bool start_optimization;
+    int opt_number;
+    int* opt_index;
 };
 
 #endif
