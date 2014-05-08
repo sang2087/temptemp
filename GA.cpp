@@ -10,14 +10,8 @@ void GA::Initialize(){
   srand(time(NULL));
 
   //set values
-  parent = NULL;
-  delete[] parent;
 
   parent = new Chromosome[population_number];
-
-  offspring = NULL;
-  delete[] offspring;
-
   offspring = new Chromosome[population_number];
   total_best_offspring.fitness = 1000000;
 
@@ -35,7 +29,7 @@ GA::GA(){
     }
     //SetValue("grading1/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
     //SetValue("grading101/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    SetValue("cycle.in.100", 50, 10, 0.003, 10, 1, 0.8);
+    SetValue("cycle.in.50", 50, 10, 0.003, 10, 1, 0.6);
     //SetValue("cycle.in.318", 100, 10, 0.003, 10, 10, 0.6);
     //SetValue("cycle.in.318", 50, 5, 0.0025, 5, 10, 0.6);
     //SetValue("cycle.in.50", 30, 5, 0.0025, 5, 10);
@@ -52,18 +46,18 @@ GA::GA(){
     int opt_time=0;
     while(i < MAX_GENERATION){
   //    cout << "\nGENERATION " << i << endl;
-      //cout << "crossover" << endl;
+//     cout << "crossover" << endl;
      temp_t=time(0);
 
       Crossover(); //all offsprings are crossovered, include selection.
       crossover_time+=time(0)-temp_t;
       temp_t=time(0);
-      //cout << "Mutation" << endl;
+//      cout << "Mutation" << endl;
       Mutate();
       mutation_time+=time(0)-temp_t;
       temp_t=time(0);
 
-      //cout << "Analysis" << endl;
+ //     cout << "Analysis" << endl;
       if(end_t - start_t > limit_time * 0.20){
         start_optimization = true;
       }
@@ -73,16 +67,20 @@ GA::GA(){
       temp_t=time(0);
 
       if(TWO_OPT && start_optimization){
+
+  //    cout << "Optimization" << endl;
         mutation_ratio = 0.002;
         opt_time+=time(0)-temp_t;
         temp_t=time(0);
-    //    cout << "!!!" << endl;
+        cout << "!!!" << endl;
         start_optimization = true;
         Optimization();
+
+    //  cout << "Analy2" << endl;
         Analysis();
         //cout << "\n" << endl;
       }
-      //cout << "replace" << endl;
+     // cout << "replace" << endl;
       Replace();
       replace_time+=time(0)-temp_t;
       temp_t=time(0);
@@ -106,6 +104,8 @@ GA::GA(){
         break;
       }
     }
+    delete[] parent;
+    //delete[] input_gene;
   }
 }
 
@@ -222,12 +222,6 @@ void GA::Replace(){
     }
     //cout << endl;
   }
-  worst_delete_index = NULL;
-  delete[] worst_delete_index;
-
-  parent = NULL;
-  delete[] parent;
-
   parent = offspring;
 }
 
@@ -481,14 +475,20 @@ void GA::Optimization(){
 
         float candidate_fitness = CalculateFitness(candidate_gene);
         if(candidate_fitness < best_offspring.fitness){
-          best_offspring.gene = candidate_gene;
+          for(int i=0;i<gene_number;i++){
+            best_offspring.gene[i] = candidate_gene[i];
+          }
           best_offspring.fitness = candidate_fitness;
         }
         delete[] candidate_gene;
       }
     }
     //cout << offspring[offspring_index].fitness << " " << best_offspring.fitness << endl;
-    offspring[offspring_index] = best_offspring;
+    //
+    offspring[offspring_index].fitness = best_offspring.fitness;
+    for(int i=0;i<gene_number;i++){
+      offspring[offspring_index].gene[i] = best_offspring.gene[i];
+    }
   }
 }
 int GA::Tournament(){
@@ -548,7 +548,6 @@ Chromosome GA::ChromosomeClone(Chromosome src){
 
 void GA::MultipointCrossover(int offspring_index,int parent1_index, int parent2_index, int cut_number){
   Gene* offspring_gene = new Gene[gene_number];
-
   int gene[gene_number];
   for(int i=0;i<gene_number-1;i++){
     gene[i] = i+1;
@@ -577,8 +576,12 @@ void GA::MultipointCrossover(int offspring_index,int parent1_index, int parent2_
       offspring_gene[i] = parent[parent2_index].gene[i];
     }
   }
+
   offspring_gene = repair(offspring_gene);
-  offspring[offspring_index].gene = offspring_gene;
+
+  for(int i=0;i<gene_number;i++){
+    offspring[offspring_index].gene[i] = offspring_gene[i];
+  }
   delete[] offspring_gene;
 }
 
