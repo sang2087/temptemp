@@ -33,21 +33,24 @@ class GA {
   private:
 
     void GetInput(string filename);
-    int Select();
-    void SetValue(string filename, int p, int r, float m, int pre, int o);
+    int* Select();
+    void SetValue(string filename, int p, int r, float m, int pre, int o, float t);
     void Reset();
 
     void Inversion(int parent_index);
 
     Gene* repair(Gene* damaged_gene);
 
-
-
     void MultipointCrossover(int offspring_index, int parent1_index, int parent2_index, int cut_number);
     void CyclicCrossover(int offspring_index, int parent1_index, int parent2_index);
     float CalculateFitness(Gene* gene);
     void ConstructRulletwheel();
     void Analysis();
+
+    int Tournament();
+    float tournament_ratio;
+
+
 
     Chromosome ChromosomeClone(Chromosome src);
 
@@ -76,9 +79,10 @@ class GA {
     float* rullet;
 
     BD mutation_distribution;
+    BD tournament_distribution;
 
-    int* preselect_index;
-    int preselect_number;
+    int* worst_delete_index;
+    int worst_delete_number;
     bool start_optimization;
     int opt_number;
     int* opt_index;
