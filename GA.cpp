@@ -29,7 +29,7 @@ GA::GA(){
     }
     //SetValue("grading1/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
     //SetValue("grading101/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    SetValue("cycle.in.50", 50, 10, 0.003, 10, 1, 0.6);
+    SetValue("cycle.in.600", 50, 10, 0.003, 10, 1, 0.7);
     //SetValue("cycle.in.318", 100, 10, 0.003, 10, 10, 0.6);
     //SetValue("cycle.in.318", 50, 5, 0.0025, 5, 10, 0.6);
     //SetValue("cycle.in.50", 30, 5, 0.0025, 5, 10);
