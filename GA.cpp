@@ -72,9 +72,9 @@ GA::GA(){
         mutation_ratio = 0.002;
         opt_time+=time(0)-temp_t;
         temp_t=time(0);
-        cout << "!!!" << endl;
+        //cout << "!!!" << endl;
         start_optimization = true;
-        Optimization();
+        //Optimization();
 
     //  cout << "Analy2" << endl;
         Analysis();
@@ -374,7 +374,7 @@ void GA::Analysis(){
   //   cout << endl;
 
   if(best_offspring.fitness < total_best_offspring.fitness){
-    cout << "BEST  " << best_offspring.fitness << endl;
+    //cout << "BEST  " << best_offspring.fitness << endl;
     //cout << "WORST " << worst_offspring.fitness << endl;
     total_best_offspring = best_offspring;
   }
