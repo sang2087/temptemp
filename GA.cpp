@@ -380,7 +380,7 @@ void GA::Analysis(){
   //   cout << endl;
 
   if(best_offspring.fitness < total_best_offspring.fitness){
-    //cout << "BEST  " << best_offspring.fitness << endl;
+    cout << "BEST  " << best_offspring.fitness << endl;
     //cout << "WORST " << worst_offspring.fitness << endl;
     total_best_offspring = best_offspring;
   }
@@ -579,7 +579,7 @@ void GA::MultipointCrossover(int offspring_index,int parent1_index, int parent2_
   }
   offspring_gene = repair(offspring_gene);
   offspring[offspring_index].gene = offspring_gene;
-  //delete[] offspring_gene;
+  delete[] offspring_gene;
 }
 
 Gene* GA::repair(Gene* damaged_gene){
