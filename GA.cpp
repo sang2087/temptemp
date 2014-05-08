@@ -380,7 +380,7 @@ void GA::Analysis(){
   //   cout << endl;
 
   if(best_offspring.fitness < total_best_offspring.fitness){
-    cout << "BEST  " << best_offspring.fitness << endl;
+    //cout << "BEST  " << best_offspring.fitness << endl;
     //cout << "WORST " << worst_offspring.fitness << endl;
     total_best_offspring = best_offspring;
   }
