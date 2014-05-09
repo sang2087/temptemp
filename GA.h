@@ -35,6 +35,7 @@ class GA {
     void GetInput(string filename);
     int* Select();
     void SetValue(string filename, int p, int r, float m, int pre, int o, float t);
+    void SetOutput();
     void Reset();
 
     void Inversion(int parent_index);
@@ -50,8 +51,6 @@ class GA {
     int Tournament();
     float tournament_ratio;
 
-
-
     Chromosome ChromosomeClone(Chromosome src);
 
     //chromosomes
@@ -64,6 +63,7 @@ class GA {
     int gene_number;
     float rullet_constant;
     int limit_time;
+    float time_ratio;
     float mutation_ratio;
 
     //analysis values
@@ -86,6 +86,8 @@ class GA {
     bool start_optimization;
     int opt_number;
     int* opt_index;
+    int opt_counter;
+    bool on_breaker;
 };
 
 #endif
