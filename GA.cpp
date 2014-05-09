@@ -22,14 +22,14 @@ void GA::Initialize(){
 
 GA::GA(){
   float mm = 0.50;
-  for(int k=0;k<100;k++){
+  for(int k=0;k<20;k++){
   opt_counter = 0;
   //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int worst_delete, int opt_number)
     if(k%10 == 0){
       mm=mm+0.05;
     }
-    SetValue("cycle.in.100", 10, 10, 0.001, 10, 1, 0.7);
-    //SetValue("cycle.in.200", 50, 10, 0.003, 10, 1, 0.7);
+    //SetValue("cycle.in.600", 10, 10, 0.001, 10, 1, 0.7);
+    SetValue("cycle.in.200", 50, 50, 0.003, 10, 1, 0.7);
 
     Initialize();
     time_t start_t = time(0);
@@ -44,37 +44,26 @@ GA::GA(){
       //Mutate();
 
  //     cout << "Analysis" << endl;
-      if(end_t - start_t > limit_time * 0.00){
-        start_optimization = true;
-      }
+      start_optimization = true;
 
       Analysis(); //analyze several feature. ex)best, worst, etc.
 
       if(TWO_OPT && start_optimization){
-
-        cout << "Optimization" << endl;
-        mutation_ratio = 0.003;
         //cout << "!!!" << endl;
         start_optimization = true;
         Optimization();
 
     //  cout << "Analy2" << endl;
         Analysis();
-        cout << "BEST  " << total_best_offspring.fitness << endl;
-        for(int j=0;j<gene_number;j++){
-          cout << total_best_offspring.gene[j].number <<" ";
-        }
-        cout << endl;
-        
+       
         //cout << "\n" << endl;
-        break;
       }
      // cout << "replace" << endl;
       Replace();
       i++;
 
       end_t = time(0);
-      if(end_t - start_t > limit_time * 0.90){
+      if(i>=240){
         cout << "BEST  " << total_best_offspring.fitness << endl;
         for(int j=0;j<gene_number;j++){
           cout << total_best_offspring.gene[j].number <<" ";
@@ -401,11 +390,16 @@ float GA::CalculateFitness(Gene* gene){
 void GA::SetValue(string filename, int p, int r, float m, int pre, int o, float t){
   GetInput(filename);
   population_number = p;
+
   rullet_constant = r;
   mutation_ratio = m;
   worst_delete_number = pre;
   opt_number = o;
   tournament_ratio = t;
+  if(gene_number > 500){
+    population_number = p/5;
+    mutation_ratio = m/3;
+  }
   cout << "population_number : " << population_number << endl;
   //cout << "rullet_constant : " << rullet_constant << endl;
   cout << "mutation_ratio : " << mutation_ratio << endl;
