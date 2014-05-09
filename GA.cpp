@@ -22,57 +22,60 @@ void GA::Initialize(){
 
 GA::GA(){
   //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int worst_delete, int opt_number)
-  SetValue("cycle.in.318", 50, 10, 0.003, 10, 1, 0.7);
+  
+  for(int k=0;k<20;k++){
+    SetValue("cycle.in", 50, 10, 0.003, 10, 1, 0.7);
 
-  Initialize();
-  time_t start_t = time(0);
-  time_t end_t = time(0);
-  int i = 0;
-  while(i < MAX_GENERATION){
-//    cout << "\nGENERATION " << i << endl;
-//     cout << "crossover" << endl;
+    Initialize();
+    time_t start_t = time(0);
+    time_t end_t = time(0);
+    int i = 0;
+    while(i < MAX_GENERATION){
+  //    cout << "\nGENERATION " << i << endl;
+  //     cout << "crossover" << endl;
 
-    Crossover(); //all offsprings are crossovered, include selection.
-//      cout << "Mutation" << endl;
-    Mutate();
+      Crossover(); //all offsprings are crossovered, include selection.
+  //      cout << "Mutation" << endl;
+      Mutate();
 
-//     cout << "Analysis" << endl;
-    if(end_t - start_t > limit_time * time_ratio){
-      start_optimization = true;
+  //     cout << "Analysis" << endl;
+      if(end_t - start_t > limit_time * time_ratio){
+        start_optimization = true;
+      }
+
+      Analysis(); //analyze several feature. ex)best, worst, etc.
+
+      if(TWO_OPT && start_optimization){
+
+        //cout << "Optimization" << endl;
+        //cout << "!!!" << endl;
+        start_optimization = true;
+        Optimization();
+
+    //  cout << "Analy2" << endl;
+        Analysis();
+        //cout << "\n" << endl;
+      }
+     // cout << "replace" << endl;
+      Replace();
+      i++;
+
+      end_t = time(0);
+      if(end_t - start_t > limit_time * 0.90){
+        SetOutput();
+        //cout << "BEST  " << total_best_offspring.fitness << endl;
+        // for(int j=0;j<gene_number;j++){
+        //   cout << total_best_offspring.gene[j].number <<" ";
+        // }
+        //cout << endl;
+        //cout << "opt_counter :" << opt_counter<< endl;
+
+        break;
+      }
     }
-
-    Analysis(); //analyze several feature. ex)best, worst, etc.
-
-    if(TWO_OPT && start_optimization){
-
-      cout << "Optimization" << endl;
-      //cout << "!!!" << endl;
-      start_optimization = true;
-      Optimization();
-
-  //  cout << "Analy2" << endl;
-      Analysis();
-      //cout << "\n" << endl;
-    }
-   // cout << "replace" << endl;
-    Replace();
-    i++;
-
-    end_t = time(0);
-    if(end_t - start_t > limit_time * 0.90){
-      SetOutput();
-      cout << "BEST  " << total_best_offspring.fitness << endl;
-      // for(int j=0;j<gene_number;j++){
-      //   cout << total_best_offspring.gene[j].number <<" ";
-      // }
-      //cout << endl;
-      //cout << "opt_counter :" << opt_counter<< endl;
-
-      break;
-    }
+    delete[] parent;
+    delete[] input_gene;
   }
-  delete[] parent;
-  delete[] input_gene;
 }
 
 void GA::Crossover(){
@@ -340,7 +343,7 @@ void GA::Analysis(){
   //   cout << endl;
 
   if(best_offspring.fitness < total_best_offspring.fitness){
-    cout << "BEST  " << best_offspring.fitness << endl;
+    //cout << "BEST  " << best_offspring.fitness << endl;
     //cout << "WORST " << worst_offspring.fitness << endl;
     total_best_offspring = best_offspring;
   }
