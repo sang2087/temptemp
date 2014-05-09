@@ -86,6 +86,7 @@ class GA {
     bool start_optimization;
     int opt_number;
     int* opt_index;
+    int opt_counter;
 };
 
 #endif

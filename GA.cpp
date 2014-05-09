@@ -21,60 +21,33 @@ void GA::Initialize(){
 }
 
 GA::GA(){
-  float mm = 0.50;
-  for(int k=0;k<2;k++){
+  for(int k=0;k<20;k++){
+    opt_counter = 0;
   //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int worst_delete, int opt_number)
-    if(k%10 == 0){
-      mm=mm+0.05;
-    }
-    //SetValue("grading1/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    //SetValue("grading101/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    SetValue("cycle.in.600", 50, 10, 0.003, 10, 1, 0.7);
-    //SetValue("cycle.in.318", 100, 10, 0.003, 10, 10, 0.6);
-    //SetValue("cycle.in.318", 50, 5, 0.0025, 5, 10, 0.6);
-    //SetValue("cycle.in.50", 30, 5, 0.0025, 5, 10);
+    SetValue("cycle.in.50", 50, 10, 0.003, 10, 1, 0.7);
 
     Initialize();
     time_t start_t = time(0);
     time_t end_t = time(0);
-    time_t temp_t = time(0);
     int i = 0;
-    int crossover_time=0;
-    int mutation_time=0;
-    int analysis_time=0;
-    int replace_time=0;
-    int opt_time=0;
     while(i < MAX_GENERATION){
   //    cout << "\nGENERATION " << i << endl;
 //     cout << "crossover" << endl;
-     temp_t=time(0);
 
       Crossover(); //all offsprings are crossovered, include selection.
-      crossover_time+=time(0)-temp_t;
-      temp_t=time(0);
 //      cout << "Mutation" << endl;
       Mutate();
-      mutation_time+=time(0)-temp_t;
-      temp_t=time(0);
 
  //     cout << "Analysis" << endl;
-      if(end_t - start_t > limit_time * 0.20){
-        start_optimization = true;
-      }
+      start_optimization = true;
 
       Analysis(); //analyze several feature. ex)best, worst, etc.
-      analysis_time+=time(0)-temp_t;
-      temp_t=time(0);
 
       if(TWO_OPT && start_optimization){
-
-  //    cout << "Optimization" << endl;
-        mutation_ratio = 0.002;
-        opt_time+=time(0)-temp_t;
-        temp_t=time(0);
+     //   cout << "Optimization" << endl;
         //cout << "!!!" << endl;
         start_optimization = true;
-        //Optimization();
+        Optimization();
 
     //  cout << "Analy2" << endl;
         Analysis();
@@ -82,30 +55,25 @@ GA::GA(){
       }
      // cout << "replace" << endl;
       Replace();
-      replace_time+=time(0)-temp_t;
-      temp_t=time(0);
-
       i++;
 
       end_t = time(0);
-      if(end_t - start_t > limit_time * 0.90){
+      if(i==1){
         cout << "BEST  " << total_best_offspring.fitness << endl;
         for(int j=0;j<gene_number;j++){
           cout << total_best_offspring.gene[j].number <<" ";
         }
         cout << endl;
-        cout << "crossover_time :" << crossover_time<< endl;
-        cout << "mutation_time :" << mutation_time<< endl;
-        cout << "analysis_time :" << analysis_time<< endl;
-        cout << "replace_time :" << replace_time<< endl;
-        cout << "opt_time :" << replace_time<< endl;
-        cout << "Generation :" << i<< endl;
+        cout << "opt_counter :" << opt_counter<< endl;
 
         break;
       }
     }
+    end_t = time(0);
+    while(time(0) == end_t){
+    }
     delete[] parent;
-    //delete[] input_gene;
+    delete[] input_gene;
   }
 }
 
@@ -121,7 +89,6 @@ void GA::Crossover(){
     //int parent2_index = point[1];
     int parent1_index = Tournament();
     int parent2_index = Tournament();
-    
 
     // cout << parent1_index << " " << parent2_index << endl;
     // cout << "before" << endl;
@@ -135,6 +102,7 @@ void GA::Crossover(){
     // cout << endl;
     //CyclicCrossover(i, parent1_index, parent2_index);
     MultipointCrossover(i, parent1_index, parent2_index,(int)(gene_number / 25));
+    //MultipointCrossover(i, parent1_index, parent2_index,5);
     // cout << "after" << endl;
     // for(int j=0;j<gene_number;j++){
     //   cout << offspring[i].gene[j].number << " ";
@@ -419,11 +387,16 @@ float GA::CalculateFitness(Gene* gene){
 void GA::SetValue(string filename, int p, int r, float m, int pre, int o, float t){
   GetInput(filename);
   population_number = p;
+
   rullet_constant = r;
   mutation_ratio = m;
   worst_delete_number = pre;
   opt_number = o;
   tournament_ratio = t;
+  if(gene_number>500){
+    population_number = p/5;
+    mutation_ratio = m/3;
+  }
   cout << "population_number : " << population_number << endl;
   //cout << "rullet_constant : " << rullet_constant << endl;
   cout << "mutation_ratio : " << mutation_ratio << endl;
@@ -452,6 +425,7 @@ void GA::GetInput(string filename){
 
 void GA::Optimization(){
   for(int opt_iterator = 0;opt_iterator<opt_number;opt_iterator++){
+    opt_counter++;
   //for(int iterator = 0;iterator<population_number;iterator++){
     int offspring_index = opt_index[opt_iterator];
     //int offspring_index = best_offspring_index;
