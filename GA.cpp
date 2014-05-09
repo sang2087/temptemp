@@ -22,69 +22,55 @@ void GA::Initialize(){
 
 GA::GA(){
   float mm = 0.50;
-  for(int k=0;k<2;k++){
+  for(int k=0;k<100;k++){
+  opt_counter = 0;
   //  SetValue(string filename, int population_number, int rullet_constant, int mutation_ratio, int worst_delete, int opt_number)
     if(k%10 == 0){
       mm=mm+0.05;
     }
-    //SetValue("grading1/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    //SetValue("grading101/cycle.in.6", 100, 10, 0.003, 10, 10, mm);
-    SetValue("cycle.in.600", 50, 10, 0.003, 10, 1, 0.7);
-    //SetValue("cycle.in.318", 100, 10, 0.003, 10, 10, 0.6);
-    //SetValue("cycle.in.318", 50, 5, 0.0025, 5, 10, 0.6);
-    //SetValue("cycle.in.50", 30, 5, 0.0025, 5, 10);
+    SetValue("cycle.in.100", 10, 10, 0.001, 10, 1, 0.7);
+    //SetValue("cycle.in.200", 50, 10, 0.003, 10, 1, 0.7);
 
     Initialize();
     time_t start_t = time(0);
     time_t end_t = time(0);
-    time_t temp_t = time(0);
     int i = 0;
-    int crossover_time=0;
-    int mutation_time=0;
-    int analysis_time=0;
-    int replace_time=0;
-    int opt_time=0;
     while(i < MAX_GENERATION){
   //    cout << "\nGENERATION " << i << endl;
 //     cout << "crossover" << endl;
-     temp_t=time(0);
 
-      Crossover(); //all offsprings are crossovered, include selection.
-      crossover_time+=time(0)-temp_t;
-      temp_t=time(0);
+      //Crossover(); //all offsprings are crossovered, include selection.
 //      cout << "Mutation" << endl;
-      Mutate();
-      mutation_time+=time(0)-temp_t;
-      temp_t=time(0);
+      //Mutate();
 
  //     cout << "Analysis" << endl;
-      if(end_t - start_t > limit_time * 0.20){
+      if(end_t - start_t > limit_time * 0.00){
         start_optimization = true;
       }
 
       Analysis(); //analyze several feature. ex)best, worst, etc.
-      analysis_time+=time(0)-temp_t;
-      temp_t=time(0);
 
       if(TWO_OPT && start_optimization){
 
-  //    cout << "Optimization" << endl;
-        mutation_ratio = 0.002;
-        opt_time+=time(0)-temp_t;
-        temp_t=time(0);
+        cout << "Optimization" << endl;
+        mutation_ratio = 0.003;
         //cout << "!!!" << endl;
         start_optimization = true;
-        //Optimization();
+        Optimization();
 
     //  cout << "Analy2" << endl;
         Analysis();
+        cout << "BEST  " << total_best_offspring.fitness << endl;
+        for(int j=0;j<gene_number;j++){
+          cout << total_best_offspring.gene[j].number <<" ";
+        }
+        cout << endl;
+        
         //cout << "\n" << endl;
+        break;
       }
      // cout << "replace" << endl;
       Replace();
-      replace_time+=time(0)-temp_t;
-      temp_t=time(0);
-
       i++;
 
       end_t = time(0);
@@ -94,18 +80,13 @@ GA::GA(){
           cout << total_best_offspring.gene[j].number <<" ";
         }
         cout << endl;
-        cout << "crossover_time :" << crossover_time<< endl;
-        cout << "mutation_time :" << mutation_time<< endl;
-        cout << "analysis_time :" << analysis_time<< endl;
-        cout << "replace_time :" << replace_time<< endl;
-        cout << "opt_time :" << replace_time<< endl;
-        cout << "Generation :" << i<< endl;
+        cout << "opt_counter :" << opt_counter<< endl;
 
         break;
       }
     }
     delete[] parent;
-    //delete[] input_gene;
+    delete[] input_gene;
   }
 }
 
@@ -135,6 +116,7 @@ void GA::Crossover(){
     // cout << endl;
     //CyclicCrossover(i, parent1_index, parent2_index);
     MultipointCrossover(i, parent1_index, parent2_index,(int)(gene_number / 25));
+    //MultipointCrossover(i, parent1_index, parent2_index,5);
     // cout << "after" << endl;
     // for(int j=0;j<gene_number;j++){
     //   cout << offspring[i].gene[j].number << " ";
@@ -452,6 +434,7 @@ void GA::GetInput(string filename){
 
 void GA::Optimization(){
   for(int opt_iterator = 0;opt_iterator<opt_number;opt_iterator++){
+    opt_counter++;
   //for(int iterator = 0;iterator<population_number;iterator++){
     int offspring_index = opt_index[opt_iterator];
     //int offspring_index = best_offspring_index;
